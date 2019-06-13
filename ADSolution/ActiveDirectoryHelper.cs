@@ -87,5 +87,39 @@ namespace ActiveDirectoryHelper
                 return null;
             }
         }
+        public List<ADUserDetail> GetUserFromGroup(String groupName)
+        {
+            List<ADUserDetail> userlist = new List<ADUserDetail>();
+            try
+            {
+
+                DirectorySearcher directorySearch = new DirectorySearcher(SearchRoot);
+                directorySearch.Filter = "(&(objectClass=group)(SAMAccountName=" + groupName + "))";
+                SearchResult results = directorySearch.FindOne();
+                if (results != null)
+                {
+                    DirectoryEntry deGroup = new DirectoryEntry(results.Path);
+                    System.DirectoryServices.PropertyCollection pColl = deGroup.Properties;
+                    int count = pColl["member"].Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        string respath = results.Path;
+                        string[] pathnavigate = respath.Split("CN".ToCharArray());
+                        respath = pathnavigate[0];
+                        string objpath = pColl["member"][i].ToString();
+                        string path = respath + objpath;
+                        DirectoryEntry user = new DirectoryEntry(path);
+                        ADUserDetail userobj = ADUserDetail.GetUser(user);
+                        userlist.Add(userobj);
+                        user.Close();
+                    }
+                }
+                return userlist;
+            }
+            catch (Exception ex)
+            {
+                return userlist;
+            }
+        }
     }
 }

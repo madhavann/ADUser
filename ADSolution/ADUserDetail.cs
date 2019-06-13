@@ -176,5 +176,6 @@ namespace ActiveDirectoryHelper
         {
             return new ADUserDetail(directoryUser);
         }
+        
     }
 }
